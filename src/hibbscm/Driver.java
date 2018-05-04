@@ -5,7 +5,7 @@ public class Driver {
     private int currentPlayer;
     private UI ui;
     private Settings settings;
-    public enum DurationMethod {TURNS, SCORE}
+    public enum DurationMethod {TURNS, SCORE, INFINITE}
 
     public Driver() {
         UI ui = new UI(this);
@@ -21,7 +21,10 @@ public class Driver {
     }
 
     public void advanceTurn() {
-        currentPlayer = (currentPlayer + 1) % settings.numPlayers + 1;
+        System.out.print("Changing the turn from " + currentPlayer);
+        currentPlayer++;
+        if(currentPlayer > settings.numPlayers) currentPlayer = 1;
+        System.out.println(" to " + currentPlayer);
     }
 
     public int getCurrentPlayer() {
