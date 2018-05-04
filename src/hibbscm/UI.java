@@ -20,7 +20,7 @@ public class UI extends JFrame {
         board = new Board(this);
 
         JPanel content = new JPanel();
-        content.setLayout(new GridLayout(WIDTH, HEIGHT));
+        content.setLayout(new GridLayout(INITIAL_RADIUS * 2 + 1, INITIAL_RADIUS * 2 + 1));
 
         // Build up the board
         Util.doInRadius(INITIAL_RADIUS, (x, y) -> {
@@ -42,11 +42,12 @@ public class UI extends JFrame {
     public void startGame() {
         Space center = board.getSpace(0, 0);
         board.setCurrentSpace(center);
-        center.forAllNeighbors((s -> s.setEnabled(true)));
+        Color backgroundColor = Util.fade(Settings.getInstance().getPlayerColor(1));
+        center.forAllNeighbors((s -> s.turnOn(backgroundColor)));
         center.occupy(-1);
     }
 
-    public void getSettings() {
+    public void requestSettings() {
         Settings settings = Settings.getInstance();
 
         settings.numPlayers = Integer.parseInt(JOptionPane.showInputDialog(this, "How many players?"));
@@ -66,12 +67,6 @@ public class UI extends JFrame {
         }
     }
 
-    boolean gameFinished() {
-        // TODO return if the game is finished or not,
-        // TODO based on the driving method and the settings
-        return false;
-    }
-
     private ActionListener onSpaceClick = (event) -> {
         // This action is only for spaces. Check if source is space, and then cast
         if(!(event.getSource() instanceof Space)) return;
@@ -82,13 +77,17 @@ public class UI extends JFrame {
 
         // calculate any points scored
         int points = space.getPoints();
-        System.out.println("Points: " + points);
+        if(points > 0) {
+            System.out.println("Player " + driver.getCurrentPlayer() + " got " + points + " points");
+        }
+
+        // turn off the previous spaces
+        board.getCurrentSpace().forAllNeighbors(s -> s.turnOff());
 
         // then set the board up for the new player and advance the turn
-        Color enabledColor = Util.fade(Settings.getInstance().getPlayerColor(driver.getCurrentPlayer()));
-        board.getCurrentSpace().forAllNeighbors(s -> s.turnOff());
-        space.forAllNeighbors(s -> s.turnOn(enabledColor));
         board.setCurrentSpace(space);
         driver.advanceTurn();
+        Color enabledColor = Util.fade(Settings.getInstance().getPlayerColor(driver.getCurrentPlayer()));
+        space.forAllNeighbors(s -> s.turnOn(enabledColor));
     };
 }

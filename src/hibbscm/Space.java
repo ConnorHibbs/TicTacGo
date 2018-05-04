@@ -2,6 +2,9 @@ package hibbscm;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class Space extends JButton {
 
@@ -35,22 +38,19 @@ public class Space extends JButton {
     }
 
     public int getPoints() {
-        // TODO check every direction
-        // TODO start counter for points at 1 (for self)
-        // TODO keep going in that direction while the space is yours
-        // TODO add up points, subtract 3
-
-        System.out.println("Checking (" + (x) + ", " + (y) + ") for points...");
-
         // assume 0 points scored on any given turn
         int totalPoints = 0;
 
         // The four cardinal direction pairs to check for points in ( \ | / - )
         int[][][] directions3 = {{NW, SE}, {N, S}, {NE, SW}, {E, W}};
 
+        Set<Space> scoredSpaces = new HashSet<>();
+
+        // for each possible direction to score in
         for(int cardinal = 0; cardinal < 4; cardinal++) {
             // Start points off with 1 (for the space just occupied)
             int cardinalPoints = 1;
+            Set<Space> cardinalSpaces = new HashSet<>();
 
             // check in the two possible directions for each cardinal pair, and add on points for those encountered
             for(int direction = 0; direction < 2; direction++) {
@@ -58,11 +58,11 @@ public class Space extends JButton {
                 int yOffset = directions3[cardinal][direction][1];
 
                 Space neighbor = board.getSpace(x + xOffset, y + yOffset);
-                System.out.println("\tChecking (" + (x + xOffset) + ", " + (y + yOffset) + ")...");
 
+                // keep searching as long as matches exist in that direction
                 while(neighbor.occupied == occupied) {
-                    System.out.println("Found match at (" + (x + xOffset) + ", " + (y + yOffset) + ")");
-                    cardinalPoints++;
+                    cardinalSpaces.add(neighbor); // add this piece as scored
+                    cardinalPoints++; // add points
                     neighbor = board.getSpace(neighbor.x + xOffset, neighbor.y + yOffset);
                 }
             }
@@ -71,9 +71,16 @@ public class Space extends JButton {
             // this is equal to the total in that row - 2
             if(cardinalPoints >= 3) {
                 totalPoints += cardinalPoints - 2;
-            }
 
-            System.out.println("Total matches for this cardinal: " + cardinalPoints);
+                // if they scored points, add those spaces to the set to clear at the end
+                scoredSpaces.addAll(cardinalSpaces);
+            }
+        }
+
+        // if they scored, clear the pieces used to score
+        if(totalPoints > 0) {
+            clear(); // clear itself
+            scoredSpaces.forEach(Space::clear); // clear all scored spaces
         }
 
         return totalPoints;
@@ -81,7 +88,7 @@ public class Space extends JButton {
 
     public void clear() {
         this.occupied = 0;
-        setBackground(Color.WHITE);
+        turnOff();
     }
 
     public void turnOn(Color backgroundColor) {
@@ -103,7 +110,13 @@ public class Space extends JButton {
     }
 
     public void forAllNeighbors(SpaceFunction action) {
-        Util.doInRadius(1, x, y, (x, y) -> action.runOn(board.getSpace(x, y)));
+        // don't use the doInRadius from Util, to exclude the center (self)
+        for(int y = -1; y <= 1; y++) {
+            for(int x = -1; x <= 1; x++) {
+                if(x == 0 && y == 0) continue;
+                action.runOn(board.getSpace(this.x + x, this.y + y));
+            }
+        }
     }
 
 

@@ -15,14 +15,13 @@ public class Driver {
 
     public void startGame() {
         currentPlayer = 1;
+        ui.requestSettings();
         ui.startGame();
     }
 
     public void advanceTurn() {
-        System.out.print("Changing the turn from " + currentPlayer);
         currentPlayer++;
         if(currentPlayer > Settings.getInstance().numPlayers) currentPlayer = 1;
-        System.out.println(" to " + currentPlayer);
     }
 
     public int getCurrentPlayer() {
