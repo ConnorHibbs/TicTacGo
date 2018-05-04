@@ -3,14 +3,8 @@ package hibbscm;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 
 public class UI extends JFrame {
-
-    /** Map of colors for each player */
-    private Map<Integer, Color> playerColors = new HashMap<>();
 
     private enum Direction {NW, N, NE, E, SE, S, SW, W}
 
@@ -25,22 +19,15 @@ public class UI extends JFrame {
         this.driver = driver;
         board = new Board(this);
 
-        playerColors.put(0, Color.WHITE);
-        playerColors.put(-1, Color.BLACK);
-        playerColors.put(1, Color.RED);
-        playerColors.put(2, Color.BLUE);
-        playerColors.put(3, Color.GREEN);
-
         JPanel content = new JPanel();
         content.setLayout(new GridLayout(WIDTH, HEIGHT));
 
-        for(int y = -INITIAL_RADIUS; y <= INITIAL_RADIUS; y++) {
-            for(int x = -INITIAL_RADIUS; x <= INITIAL_RADIUS; x++) {
-                Space space = board.newSpace(x, y);
-                space.addActionListener(onSpaceClick);
-                content.add(space);
-            }
-        }
+        // Build up the board
+        Util.doInRadius(INITIAL_RADIUS, (x, y) -> {
+            Space space = board.newSpace(x, y);
+            space.addActionListener(onSpaceClick);
+            content.add(space);
+        });
 
         add(content);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -59,8 +46,8 @@ public class UI extends JFrame {
         center.occupy(-1);
     }
 
-    public Driver.Settings getSettings() {
-        Driver.Settings settings = new Driver.Settings();
+    public void getSettings() {
+        Settings settings = Settings.getInstance();
 
         settings.numPlayers = Integer.parseInt(JOptionPane.showInputDialog(this, "How many players?"));
 
@@ -77,8 +64,6 @@ public class UI extends JFrame {
         } else if (durationMethod == 2) { // infinite
             settings.durationMethod = Driver.DurationMethod.INFINITE;
         }
-
-        return settings;
     }
 
     boolean gameFinished() {
@@ -100,8 +85,9 @@ public class UI extends JFrame {
         System.out.println("Points: " + points);
 
         // then set the board up for the new player and advance the turn
-        board.getCurrentSpace().forAllNeighbors(s -> s.setEnabled(false));
-        space.forAllNeighbors(s -> s.setEnabled(true));
+        Color enabledColor = Util.fade(Settings.getInstance().getPlayerColor(driver.getCurrentPlayer()));
+        board.getCurrentSpace().forAllNeighbors(s -> s.turnOff());
+        space.forAllNeighbors(s -> s.turnOn(enabledColor));
         board.setCurrentSpace(space);
         driver.advanceTurn();
     };

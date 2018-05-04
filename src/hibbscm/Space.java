@@ -2,7 +2,6 @@ package hibbscm;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 
 public class Space extends JButton {
 
@@ -32,7 +31,7 @@ public class Space extends JButton {
     public void occupy(int player) {
         setEnabled(false);
         this.occupied = player;
-        setBackground(playerColors.get(player));
+        setBackground(Settings.getInstance().getPlayerColor(player));
     }
 
     public int getPoints() {
@@ -85,23 +84,18 @@ public class Space extends JButton {
         setBackground(Color.WHITE);
     }
 
-    @Override
-    public void setEnabled(boolean enabled) {
-        // only enable of disable if it is not occupied
+    public void turnOn(Color backgroundColor) {
         if(occupied == 0) {
-            super.setEnabled(enabled);
-            setBackground(enabled ? getEnabledColor() : Color.WHITE);
+            super.setEnabled(true);
+            setBackground(backgroundColor);
         }
     }
 
-    Color getEnabledColor() {
-        Color c = playerColors.get(getCurrentPlayer());
-        int saturation = 64;
-        int boldness = 255 - saturation;
-        int r = Math.min(c.getRed() + boldness, 255);
-        int g = Math.min(c.getGreen() + boldness, 255);
-        int b = Math.min(c.getBlue() + boldness, 255);
-        return new Color(r, g, b);
+    public void turnOff() {
+        if(occupied == 0) {
+            super.setEnabled(false);
+            setBackground(Color.WHITE);
+        }
     }
 
     public int isOccupied() {
@@ -109,12 +103,7 @@ public class Space extends JButton {
     }
 
     public void forAllNeighbors(SpaceFunction action) {
-        for(int y = -1; y <= 1; y++) {
-            for(int x = -1; x <= 1; x++) {
-                Space space = board.getSpace(this.x + x, this.y + y);
-                action.runOn(space);
-            }
-        }
+        Util.doInRadius(1, x, y, (x, y) -> action.runOn(board.getSpace(x, y)));
     }
 
 

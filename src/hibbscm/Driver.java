@@ -4,14 +4,12 @@ public class Driver {
 
     private int currentPlayer;
     private UI ui;
-    private Settings settings;
     public enum DurationMethod {TURNS, SCORE, INFINITE}
 
     public Driver() {
         UI ui = new UI(this);
         ui.setVisible(true);
         this.ui = ui;
-        this.settings = ui.getSettings();
         startGame();
     }
 
@@ -23,7 +21,7 @@ public class Driver {
     public void advanceTurn() {
         System.out.print("Changing the turn from " + currentPlayer);
         currentPlayer++;
-        if(currentPlayer > settings.numPlayers) currentPlayer = 1;
+        if(currentPlayer > Settings.getInstance().numPlayers) currentPlayer = 1;
         System.out.println(" to " + currentPlayer);
     }
 
@@ -33,12 +31,5 @@ public class Driver {
 
     public static void main(String[] args) {
         Driver driver = new Driver();
-    }
-
-    static class Settings {
-        int numPlayers;
-        DurationMethod durationMethod;
-        int numTurns;
-        int maxScore;
     }
 }
