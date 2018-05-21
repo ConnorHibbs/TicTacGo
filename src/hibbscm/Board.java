@@ -5,12 +5,11 @@ import java.util.Map;
 
 public class Board {
 
-
+    /** This keeps track of al spaces on the board */
     private Map<Coordinate, Space> boardMap;
 
     /** The current occupied space on the board */
     private Space currentSpace;
-
 
     /** Can do any actions on dummy space, and nobody can see */
     private Space dummySpace = new Space(this, 0, 0);
@@ -19,7 +18,7 @@ public class Board {
 
     public Board(UI ui) {
         this.ui = ui;
-        boardMap = new HashMap<>();
+        boardMap = new HashMap<>(500); // 500 is the rough initial capacity
     }
 
     public Space newSpace(int x, int y) {

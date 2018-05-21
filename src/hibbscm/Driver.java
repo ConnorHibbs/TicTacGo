@@ -4,7 +4,6 @@ public class Driver {
 
     private int currentPlayer;
     private UI ui;
-    public enum DurationMethod {TURNS, SCORE, INFINITE}
 
     public Driver() {
         UI ui = new UI(this);
@@ -29,6 +28,8 @@ public class Driver {
     }
 
     public static void main(String[] args) {
+
+//        new GameManager().sendPlay();
         Driver driver = new Driver();
     }
 }

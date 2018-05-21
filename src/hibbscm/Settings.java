@@ -7,11 +7,14 @@ import java.util.Map;
 public class Settings {
 
     private static Settings settings = new Settings();
+    public enum DurationMethod {TURNS, SCORE, INFINITE}
 
     int numPlayers;
-    Driver.DurationMethod durationMethod;
+    DurationMethod durationMethod;
     int numTurns;
     int maxScore;
+    String name;
+    Color playerColor;
 
     /** Map of colors for each player */
     private Map<Integer, Color> playerColors = new HashMap<>();

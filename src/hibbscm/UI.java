@@ -19,15 +19,26 @@ public class UI extends JFrame {
         this.driver = driver;
         board = new Board(this);
 
-        JPanel content = new JPanel();
-        content.setLayout(new GridLayout(INITIAL_RADIUS * 2 + 1, INITIAL_RADIUS * 2 + 1));
+        JPanel content = new JPanel(new BorderLayout());
+
+
+        JPanel boardPanel = new JPanel();
+        boardPanel.setLayout(new GridLayout(INITIAL_RADIUS * 2 + 1, INITIAL_RADIUS * 2 + 1));
 
         // Build up the board
         Util.doInRadius(INITIAL_RADIUS, (x, y) -> {
             Space space = board.newSpace(x, y);
             space.addActionListener(onSpaceClick);
-            content.add(space);
+            boardPanel.add(space);
         });
+
+        JPanel scorePanel = new JPanel();
+        scorePanel.setLayout(new BoxLayout(scorePanel, BoxLayout.PAGE_AXIS));
+
+        // TODO add the score to the score panel
+
+        content.add(boardPanel, BorderLayout.CENTER);
+        content.add(scorePanel, BorderLayout.EAST);
 
         add(content);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -57,13 +68,13 @@ public class UI extends JFrame {
                 new String[]{"Turn Based", "Score Based", "Infinite"}, "Infinite");
 
         if (durationMethod == 0) { // turn based
-            settings.durationMethod = Driver.DurationMethod.TURNS;
+            settings.durationMethod = Settings.DurationMethod.TURNS;
             settings.numTurns = Integer.parseInt(JOptionPane.showInputDialog(this, "How many turns?"));
         } else if (durationMethod == 1) { // score based
-            settings.durationMethod = Driver.DurationMethod.SCORE;
+            settings.durationMethod = Settings.DurationMethod.SCORE;
             settings.maxScore = Integer.parseInt(JOptionPane.showInputDialog(this, "What score to play until?"));
         } else if (durationMethod == 2) { // infinite
-            settings.durationMethod = Driver.DurationMethod.INFINITE;
+            settings.durationMethod = Settings.DurationMethod.INFINITE;
         }
     }
 
